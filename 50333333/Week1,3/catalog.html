@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catalog</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+</head>
+<body>
+    <h1>Product Catalog</h1>
+    <!-- Inside <body>, preferably at the top -->
+    <button onclick="goToCart()" class="cart-button">🛒 View Cart</button>
+
+    <div id="product-list" class="grid-container"></div>
+
+    <script>
+      // Fetch products from the API
+      fetch('https://fakestoreapi.com/products?limit=10')
+        .then(res => res.json())
+        .then(products => {
+          const container = document.getElementById('product-list');
+          
+          // Loop through the products and dynamically create HTML for each product
+          products.forEach(product => {
+            const div = document.createElement('div');
+            div.className = 'product';
+            div.innerHTML = `
+              <img src="${product.image}" width="100"/><br>
+              <strong>${product.title}</strong><br>
+              $${product.price}<br>
+              <button class="add-to-cart">Add to Cart</button>
+              <div class="quantity-control">
+                <button class="minus">-</button>
+                <span class="quantity">1</span>
+                <button class="plus">+</button>
+              </div>
+            `;
+  
+            // Add the event listener for the "Add to Cart" button
+            const button = div.querySelector('.add-to-cart');
+            button.addEventListener('click', () => 
+            {const quantity = parseInt(quantitySpan.innerText);
+            addToCart(product, quantity);
+            });
+            const minusButton = div.querySelector('.minus');
+            const plusButton = div.querySelector('.plus');
+            const quantitySpan = div.querySelector('.quantity');
+
+            minusButton.addEventListener('click', () => updateQuantity(quantitySpan, -1));
+            plusButton.addEventListener('click', () => updateQuantity(quantitySpan, 1));
+
+            // Append the product div to the container
+            container.appendChild(div);
+          });
+        });
+
+        function updateQuantity(quantityElement, change) {
+        let quantity = parseInt(quantityElement.innerText);
+        quantity += change;
+        if (quantity < 1) quantity = 1;  // Prevent going below 1
+        quantityElement.innerText = quantity;
+      }
+    function goToCart() {
+    window.location.href = "./cart.html"; // Change to your actual cart file name if different
+    }
+      // Function to add product to cart
+      function addToCart(product,quantity) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart.push({
+          title: product.title,
+          price: product.price,
+          image: product.image,
+          quantity: quantity
+        });
+        localStorage.setItem('cart', JSON.stringify(cart));
+        alert(product.title + " added to cart with quantity!"+ quantity);
+      }
+    </script>
+  </body>
+  
